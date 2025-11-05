@@ -13,6 +13,7 @@
 			src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
 		></script>
 		<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/react-tabler-icons@3.11.0/umd/react-tabler-icons.min.js"></script>
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 	</head>
@@ -22,162 +23,62 @@
 		<script type="text/babel">
 			const { useState, useEffect, useRef } = React;
 
-			// --- Heroicons Components (Solid Style) ---
-			// Note: I'm using an adjusted viewBox (24x24) to match the Tailwind utility default.
-			const IconWrapper = ({ children, className = "h-5 w-5" }) => (
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					fill="currentColor"
-					className={className}
-				>
-					{children}
-				</svg>
+			// Icon components
+			const Tabler = window.TablerIcons;
+
+			const TablerIcon = ({ name, className = "", size = 20 }) => {
+				if (!Tabler || !Tabler[name]) {
+					console.warn(`Icon ${name} not found in Tabler Icons.`);
+
+					return <span className={`w-${size / 4} h-${size / 4}`}>?</span>;
+				}
+
+				const IconComponent = Tabler[name];
+
+				return <IconComponent className={className} size={size} />;
+			};
+
+			const PlusIcon = (props) => <TablerIcon name="IconPlus" {...props} />;
+
+			const TrashIcon = (props) => <TablerIcon name="IconTrash" {...props} />;
+
+			const DownloadIcon = (props) => (
+				<TablerIcon name="IconDownload" {...props} size={16} />
 			);
 
-			const PlusIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M12 5.25a.75.75 0 0 1 .75.75v5.25H18a.75.75 0 0 1 0 1.5h-5.25V18a.75.75 0 0 1-1.5 0v-5.25H6a.75.75 0 0 1 0-1.5h5.25V6a.75.75 0 0 1 .75-.75Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
+			const UploadIcon = (props) => (
+				<TablerIcon name="IconUpload" {...props} size={16} />
 			);
 
-			const TrashIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M16.5 4.478v.227a48.842 48.842 0 0 1 3.843.829.75.75 0 1 0 .612-1.352 50.36 50.36 0 0 0-4.442-.924H16.5Zm-4.75 5.25a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0v-4.5ZM8.25 9.75a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0v-4.5ZM4.5 4.5V2.25H16.5V4.5H4.5Zm-1.5.75c0-1.036.84-1.875 1.875-1.875h11.25c1.036 0 1.875.84 1.875 1.875V6.75h2.25c.414 0 .75.336.75.75v.232a49.333 49.333 0 0 0-6.166-.667.75.75 0 0 0-.583.183l-.715.776a2.25 2.25 0 0 1-3.695-.125l-.105-.386a.75.75 0 0 0-.462-.515c-3.14-.81-4.767-1.166-4.996-1.182a.75.75 0 0 0-.74.743v.198c.197.017 1.25.17 4.25 1.053l.317.094a1.5 1.5 0 0 0 1.29-.058L10.99 7.72c.118-.128.283-.186.446-.16.163.025.31.118.418.26l.487.653a1.5 1.5 0 0 0 1.956.126l.24-.16c.092-.061.196-.089.301-.089h.408c.084 0 .167.01.249.03L20 8.243v10.51a.75.75 0 0 1-.75.75h-15a.75.75 0 0 1-.75-.75V6.75h1.5v-1.5ZM19.25 6.75h-15a.75.75 0 0 0-.75.75v10.5a.75.75 0 0 0 .75.75h15a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75ZM15.75 8.25a.75.75 0 0 0 0 1.5h-7.5a.75.75 0 0 0 0-1.5h7.5Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
+			const SaveIcon = (props) => (
+				<TablerIcon name="IconDeviceFloppy" {...props} size={16} />
+			); // Floppy disk is a classic "save" icon
+
+			const FileTextIcon = (props) => (
+				<TablerIcon name="IconFileText" {...props} size={16} />
 			);
 
-			const DownloadIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M10.5 3.75a.75.75 0 0 0-1.5 0v11.773l-1.95-2.1a.75.75 0 1 0-1.1.98L11.5 17.773a.75.75 0 0 0 1.1 0l3.0-3.26a.75.75 0 1 0-1.1-1.02l-1.95 2.1V3.75Z"
-						clipRule="evenodd"
-					/>
-					<path
-						fillRule="evenodd"
-						d="M3 17.25a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75ZM3 21.75a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
+			const XIcon = (props) => <TablerIcon name="IconX" {...props} size={16} />;
 
-			const UploadIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M12 2.25a.75.75 0 0 1 .75.75v11.773l1.95-2.1a.75.75 0 1 0-1.1-.98l-3.0 3.26a.75.75 0 0 0 1.1.98l1.95-2.1V3.75Z"
-						clipRule="evenodd"
-					/>
-					<path
-						fillRule="evenodd"
-						d="M3 17.25a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75ZM3 21.75a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
+			const TargetIcon = (props) => <TablerIcon name="IconRocket" {...props} />; // Technical Problem-Solving
 
-			const SaveIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M7.5 4.5A1.5 1.5 0 0 1 9 3h6a1.5 1.5 0 0 1 1.5 1.5v1.94l-2-.422a1.5 1.5 0 0 0-1.125.132L12 7.82V5.25a.75.75 0 0 0-1.5 0v2.719c.477.106.963.24 1.442.422a1.5 1.5 0 0 0 1.125-.132l.781-.422a.75.75 0 0 0-.672-1.391l-.781.422a.75.75 0 0 1-.562.068c-.378-.063-.758-.135-1.139-.214v-2.19c.677-.074 1.353.076 1.983.422l.142.078a.75.75 0 0 0 .979-1.18l-.142-.078a3 3 0 0 0-3.702-.693H9A1.5 1.5 0 0 1 7.5 4.5Z"
-						clipRule="evenodd"
-					/>
-					<path
-						fillRule="evenodd"
-						d="M3 9a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V9Zm9 5.25a.75.75 0 0 0-1.5 0v3a.75.75 0 0 0 1.5 0v-3Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
-			// Note: I chose ArchiveBoxArrowDownIcon for Backup (Save)
+			const UsersIcon = (props) => <TablerIcon name="IconUsers" {...props} />; // Training & Enablement
 
-			const FileTextIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M15.97 4.25H4.03A2.25 2.25 0 0 0 1.75 6.5v11.5A2.25 2.25 0 0 0 4.03 20h15.94A2.25 2.25 0 0 0 22.25 17.75V8.53a2.25 2.25 0 0 0-.662-1.59l-3.375-3.375A2.25 2.25 0 0 0 15.97 4.25Zm-4.97 6.5a.75.75 0 0 0-1.5 0v.008a.75.75 0 0 0 1.5 0v-.008ZM8.5 13.5a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 1.5 0v.008a.75.75 0 0 1-.75.75Zm4.5 0a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 1.5 0v.008a.75.75 0 0 1-.75.75ZM15.5 13.5a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 1.5 0v.008a.75.75 0 0 1-.75.75ZM8.5 16.5a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 1.5 0v.008a.75.75 0 0 1-.75.75ZM12.5 16.5a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 1.5 0v.008a.75.75 0 0 1-.75.75ZM15.5 16.5a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1 1.5 0v.008a.75.75 0 0 1-.75.75Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
-			// Note: Used DocumentTextIcon
+			const TrendingUpIcon = (props) => (
+				<TablerIcon name="IconChartArea" {...props} />
+			); // Process Improvement (using a chart for improvement)
 
-			const XIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
+			const ClockIcon = (props) => (
+				<TablerIcon name="IconClockHour9" {...props} />
+			); // Time/Cost Savings
 
-			const TargetIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3.75 14.25h6.16c.556 0 1.007.45 1.007 1.007v2.094a.75.75 0 0 0 1.5 0v-2.11a.75.75 0 0 0-.07-.378 2.253 2.253 0 0 0-.661-1.122A2.25 2.25 0 0 0 12 13.5c-1.343 0-2.5.65-3.266 1.637l-.148.176a.75.75 0 0 1-1.171-.987l.147-.175C8.3 12.634 9.914 11.25 12 11.25c2.342 0 4.391 1.45 5.166 3.407l.066.173c.091.233.15.485.168.74V17.25a.75.75 0 0 0 1.5 0V6.75a.75.75 0 0 0-.75-.75h-15a.75.75 0 0 0-.75.75v7.5Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
-			// Note: Used RocketLaunchIcon for "Technical Problem-Solving"
+			const DollarSignIcon = (props) => (
+				<TablerIcon name="IconCurrencyDollar" {...props} />
+			); // Revenue Impact
 
-			const UsersIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path d="M19 19c.7 0 1.4-.3 1.9-.8s.8-1.2.8-1.9v-2a3.75 3.75 0 0 0-3.75-3.75H8.25A3.75 3.75 0 0 0 4.5 15.25v2c0 .7.3 1.4.8 1.9s1.2.8 1.9.8h11.5ZM12 9a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z" />
-				</IconWrapper>
-			);
-			// Note: Used UsersIcon
-
-			const TrendingUpIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.84c.148-.255.452-.255.6 0l2.365 4.098c.153.265.045.597-.193.75l-4.22 2.722a.666.666 0 0 1-.774-.296l-3.32-5.752a.66.66 0 0 1-.036-.593l.363-.787c.074-.16.223-.298.39-.379l3.32-1.637a.64.64 0 0 1 .64 0l.39.19Z" />
-				</IconWrapper>
-			);
-			// Note: Used ChartBarSquareIcon for "Process Improvement"
-
-			const ClockIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 7a.75.75 0 0 0-1.5 0v5.188L9.439 12.83a.75.75 0 0 0 .862 1.15l2.25-1.687a.75.75 0 0 0 .356-.662V7Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
-			// Note: Used ClockIcon
-
-			const DollarSignIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M12 1.5a.75.75 0 0 0-1.5 0v21a.75.75 0 0 0 1.5 0v-21ZM8.5 6a1.5 1.5 0 0 0-1.5 1.5v6c0 .828.672 1.5 1.5 1.5h7c.828 0 1.5-.672 1.5-1.5v-6a1.5 1.5 0 0 0-1.5-1.5h-7ZM7 7.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-6Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
-			// Note: Used BanknotesIcon for "Revenue Impact"
-
-			const DatabaseIcon = ({ className }) => (
-				<IconWrapper className={className}>
-					<path
-						fillRule="evenodd"
-						d="M11.5 1.5a.75.75 0 0 1 .75-.75h.01a.75.75 0 0 1 .75.75v1.75h-.01a.75.75 0 0 1-.75-.75ZM3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0ZM12 5.25a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5Z"
-						clipRule="evenodd"
-					/>
-				</IconWrapper>
-			);
+			const DatabaseIcon = (props) => (
+				<TablerIcon name="IconDatabase" {...props} />
+			); // Data Quality & Governance
 
 			const ImpactTracker = () => {
 				const pdfRef = useRef();
@@ -374,8 +275,9 @@
 					const clone = element.cloneNode(true);
 
 					// Remove delete buttons from clone
-					const buttons = clone.querySelectorAll("button");
-					buttons.forEach((btn) => btn.remove());
+					const deleteButtons = clone.querySelectorAll(".delete-button");
+
+					deleteButtons.forEach((btn) => btn.remove());
 
 					const opt = {
 						margin: 0.5,
@@ -643,25 +545,25 @@
 									onClick={exportToPDF}
 									className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2 text-sm"
 								>
-									<FileTextIcon />
+									<FileTextIcon size={16} />
 									Export PDF
 								</button>
 								<button
 									onClick={exportToText}
 									className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-2 text-sm"
 								>
-									<DownloadIcon />
+									<DownloadIcon size={16} />
 									Export Text
 								</button>
 								<button
 									onClick={backupToFile}
 									className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 text-sm"
 								>
-									<SaveIcon />
+									<SaveIcon size={16} />
 									Backup Data
 								</button>
 								<label className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2 text-sm cursor-pointer">
-									<UploadIcon />
+									<UploadIcon size={16} />
 									Restore Data
 									<input
 										type="file"
@@ -675,7 +577,7 @@
 
 						<div ref={pdfRef} className="space-y-4">
 							{impacts.map((impact) => {
-								const CategoryIcon = categories[impact.category].icon;
+								const CategoryIcon = categories[impact.category]?.icon;
 								const skillsArray = Array.isArray(impact.skills)
 									? impact.skills
 									: typeof impact.skills === "string"
@@ -691,11 +593,14 @@
 											<div className="flex items-start gap-3 flex-1">
 												<span
 													className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
-														categories[impact.category].color
+														categories[impact.category]?.color ||
+														"bg-gray-100 text-gray-700"
 													}`}
 												>
-													<CategoryIcon />
-													{categories[impact.category].label}
+													{CategoryIcon && <CategoryIcon size={16} />}
+
+													{categories[impact.category]?.label ||
+														"Uncategorized"}
 												</span>
 												<div className="flex-1">
 													<h3 className="font-semibold text-lg text-gray-800">
@@ -706,7 +611,7 @@
 											</div>
 											<button
 												onClick={() => deleteImpact(impact.id)}
-												className="text-red-500 hover:text-red-700 p-1 print:hidden"
+												className="text-red-500 hover:text-red-700 p-1 print:hidden delete-button"
 											>
 												<TrashIcon />
 											</button>
