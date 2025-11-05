@@ -13,7 +13,15 @@
 			src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
 		></script>
 		<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/react-tabler-icons@3.11.0/umd/react-tabler-icons.min.js"></script>
+
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+			integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJ/cnMkzXF/YjS+XjJ9iA+xG/H6v46t/1841L942qQe5W+g2NlM4c4G1Q=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		/>
+
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 	</head>
@@ -22,63 +30,6 @@
 
 		<script type="text/babel">
 			const { useState, useEffect, useRef } = React;
-
-			// Icon components
-			const Tabler = window.TablerIcons;
-
-			const TablerIcon = ({ name, className = "", size = 20 }) => {
-				if (!Tabler || !Tabler[name]) {
-					console.warn(`Icon ${name} not found in Tabler Icons.`);
-
-					return <span className={`w-${size / 4} h-${size / 4}`}>?</span>;
-				}
-
-				const IconComponent = Tabler[name];
-
-				return <IconComponent className={className} size={size} />;
-			};
-
-			const PlusIcon = (props) => <TablerIcon name="IconPlus" {...props} />;
-
-			const TrashIcon = (props) => <TablerIcon name="IconTrash" {...props} />;
-
-			const DownloadIcon = (props) => (
-				<TablerIcon name="IconDownload" {...props} size={16} />
-			);
-
-			const UploadIcon = (props) => (
-				<TablerIcon name="IconUpload" {...props} size={16} />
-			);
-
-			const SaveIcon = (props) => (
-				<TablerIcon name="IconDeviceFloppy" {...props} size={16} />
-			); // Floppy disk is a classic "save" icon
-
-			const FileTextIcon = (props) => (
-				<TablerIcon name="IconFileText" {...props} size={16} />
-			);
-
-			const XIcon = (props) => <TablerIcon name="IconX" {...props} size={16} />;
-
-			const TargetIcon = (props) => <TablerIcon name="IconRocket" {...props} />; // Technical Problem-Solving
-
-			const UsersIcon = (props) => <TablerIcon name="IconUsers" {...props} />; // Training & Enablement
-
-			const TrendingUpIcon = (props) => (
-				<TablerIcon name="IconChartArea" {...props} />
-			); // Process Improvement (using a chart for improvement)
-
-			const ClockIcon = (props) => (
-				<TablerIcon name="IconClockHour9" {...props} />
-			); // Time/Cost Savings
-
-			const DollarSignIcon = (props) => (
-				<TablerIcon name="IconCurrencyDollar" {...props} />
-			); // Revenue Impact
-
-			const DatabaseIcon = (props) => (
-				<TablerIcon name="IconDatabase" {...props} />
-			); // Data Quality & Governance
 
 			const ImpactTracker = () => {
 				const pdfRef = useRef();
@@ -152,36 +103,37 @@
 					}
 				}, [impacts]);
 
+				// Map categories to Font Awesome icon class names
 				const categories = {
 					technical: {
 						label: "Technical Problem-Solving",
-						icon: TargetIcon,
+						iconClass: "fa-solid fa-rocket",
 						color: "bg-blue-100 text-blue-700",
 					},
 					enablement: {
 						label: "Training & Enablement",
-						icon: UsersIcon,
+						iconClass: "fa-solid fa-users-line",
 						color: "bg-green-100 text-green-700",
 					},
 					process: {
 						label: "Process Improvement",
-						icon: TrendingUpIcon,
+						iconClass: "fa-solid fa-chart-line",
 						color: "bg-purple-100 text-purple-700",
 					},
 					efficiency: {
 						label: "Time/Cost Savings",
-						icon: ClockIcon,
+						iconClass: "fa-solid fa-clock",
 						color: "bg-orange-100 text-orange-700",
 					},
 					revenue: {
 						label: "Revenue Impact",
-						icon: DollarSignIcon,
+						iconClass: "fa-solid fa-money-bill",
 						color: "bg-emerald-100 text-emerald-700",
 					},
 					data: {
 						label: "Data Quality & Governance",
-						icon: DatabaseIcon,
-						color: "bg-blue-100 text-blue-700",
+						iconClass: "fa-solid fa-database",
+						color: "bg-indigo-100 text-indigo-700",
 					},
 				};
 
@@ -270,13 +222,8 @@
 					}
 
 					const element = pdfRef.current;
-
-					// Clone the element to avoid modifying the display
 					const clone = element.cloneNode(true);
-
-					// Remove delete buttons from clone
 					const deleteButtons = clone.querySelectorAll(".delete-button");
-
 					deleteButtons.forEach((btn) => btn.remove());
 
 					const opt = {
@@ -371,7 +318,7 @@
 
 						<div className="bg-white rounded-lg shadow-md p-6 mb-6">
 							<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-								<PlusIcon />
+								<i className="fa-solid fa-circle-plus text-xl"></i>
 								Add New Impact
 							</h2>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -485,7 +432,7 @@
 														onClick={() => removeSkill(skill)}
 														className="hover:text-blue-900"
 													>
-														<XIcon />
+														<i className="fa-solid fa-xmark text-sm"></i>
 													</button>
 												</span>
 											))}
@@ -531,7 +478,7 @@
 								onClick={addImpact}
 								className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
 							>
-								<PlusIcon />
+								<i className="fa-solid fa-plus"></i>
 								Add Impact
 							</button>
 						</div>
@@ -545,25 +492,25 @@
 									onClick={exportToPDF}
 									className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2 text-sm"
 								>
-									<FileTextIcon size={16} />
+									<i className="fa-solid fa-file-pdf"></i>
 									Export PDF
 								</button>
 								<button
 									onClick={exportToText}
 									className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-2 text-sm"
 								>
-									<DownloadIcon size={16} />
+									<i className="fa-solid fa-download"></i>
 									Export Text
 								</button>
 								<button
 									onClick={backupToFile}
 									className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 text-sm"
 								>
-									<SaveIcon size={16} />
+									<i className="fa-solid fa-floppy-disk"></i>
 									Backup Data
 								</button>
 								<label className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2 text-sm cursor-pointer">
-									<UploadIcon size={16} />
+									<i className="fa-solid fa-upload"></i>
 									Restore Data
 									<input
 										type="file"
@@ -577,7 +524,7 @@
 
 						<div ref={pdfRef} className="space-y-4">
 							{impacts.map((impact) => {
-								const CategoryIcon = categories[impact.category]?.icon;
+								const category = categories[impact.category];
 								const skillsArray = Array.isArray(impact.skills)
 									? impact.skills
 									: typeof impact.skills === "string"
@@ -593,14 +540,16 @@
 											<div className="flex items-start gap-3 flex-1">
 												<span
 													className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
-														categories[impact.category]?.color ||
-														"bg-gray-100 text-gray-700"
+														category?.color || "bg-gray-100 text-gray-700"
 													}`}
 												>
-													{CategoryIcon && <CategoryIcon size={16} />}
-
-													{categories[impact.category]?.label ||
-														"Uncategorized"}
+													<i
+														className={`${
+															category?.iconClass ||
+															"fa-solid fa-circle-question"
+														}`}
+													></i>
+													{category?.label || "Uncategorized"}
 												</span>
 												<div className="flex-1">
 													<h3 className="font-semibold text-lg text-gray-800">
@@ -613,7 +562,7 @@
 												onClick={() => deleteImpact(impact.id)}
 												className="text-red-500 hover:text-red-700 p-1 print:hidden delete-button"
 											>
-												<TrashIcon />
+												<i className="fa-solid fa-trash-can text-lg"></i>
 											</button>
 										</div>
 
